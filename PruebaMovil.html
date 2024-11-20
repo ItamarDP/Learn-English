@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Match Activity</title>
+  <style>
+    .container {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .button {
+      padding: 15px;
+      background-color: yellow; /* Izquierda */
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .button-right {
+      background-color: purple; /* Derecha */
+      color: white;
+    }
+    .matched {
+      background-color: green !important;
+      pointer-events: none; /* Desactivar clic después de emparejar */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="column" id="spanishWords">
+      <div class="button" draggable="true" data-match="1">Padre</div>
+      <div class="button" draggable="true" data-match="2">Madre</div>
+      <div class="button" draggable="true" data-match="3">Hermano</div>
+    </div>
+    <div class="column" id="englishWords">
+      <div class="button button-right" data-match="1">Father</div>
+      <div class="button button-right" data-match="2">Mother</div>
+      <div class="button button-right" data-match="3">Brother</div>
+    </div>
+  </div>
+
+  <script>
+    // Agregar funcionalidad Drag and Drop
+    const spanishWords = document.querySelectorAll("#spanishWords .button");
+    const englishWords = document.querySelectorAll("#englishWords .button");
+
+    spanishWords.forEach(word => {
+      word.addEventListener("dragstart", event => {
+        event.dataTransfer.setData("text", event.target.dataset.match);
+      });
+    });
+
+    englishWords.forEach(word => {
+      word.addEventListener("dragover", event => {
+        event.preventDefault(); // Permitir soltar
+      });
+
+      word.addEventListener("drop", event => {
+        const draggedMatch = event.dataTransfer.getData("text");
+        const targetMatch = event.target.dataset.match;
+
+        if (draggedMatch === targetMatch) {
+          // Emparejar correctamente
+          const draggedElement = document.querySelector(`[data-match="${draggedMatch}"]`);
+          draggedElement.classList.add("matched");
+          event.target.classList.add("matched");
+        } else {
+          alert("No coincide, inténtalo de nuevo.");
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
