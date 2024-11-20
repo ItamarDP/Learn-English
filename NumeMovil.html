@@ -5,51 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vocabulario de los Números</title>
   <style>
-    /* Estilo básico para asegurar responsividad */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      min-height: 100vh;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       background-color: #f0f0f0;
-      flex-direction: column;
     }
-
-    /* Títulos */
     h1 {
       margin-bottom: 20px;
       color: #333;
       text-transform: uppercase;
-      text-align: center;
-      font-size: 5vw; /* Tamaño adaptable */
     }
-
-    /* Contenedores */
     .button-container {
       display: flex;
       flex-direction: column;
       gap: 15px;
-      width: 90%; /* Adaptación para móviles */
+      width: 80%;
       max-width: 400px;
       margin: 0 auto;
     }
-
-    /* Botones */
     .group-button, .activity-button {
       padding: 15px;
       color: white;
       border: none;
       border-radius: 10px;
-      font-size: 4vw; /* Tamaño adaptable */
+      font-size: 16px;
       cursor: pointer;
       text-align: center;
       text-transform: uppercase;
     }
-
-    /* Colores de los botones */
+    .group-button:hover, .activity-button:hover {
+      opacity: 0.9;
+    }
     .group-button.yellow {
       background-color: #f1c40f;
     }
@@ -65,31 +56,18 @@
     .activity-button.match {
       background-color: #e67e22;
     }
-
-    /* Hover */
-    .group-button:hover, .activity-button:hover {
-      opacity: 0.9;
-    }
-
-    /* Cuadros interactivos */
     .word-box {
       padding: 15px;
       color: white;
       text-align: center;
       border-radius: 5px;
-      font-size: 3vw; /* Adaptado para móviles */
+      font-size: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
       word-wrap: break-word;
       transition: background-color 0.3s ease;
       cursor: pointer;
-    }
-    .word-box.memory {
-      background-color: blue;
-    }
-    .word-box.memory:hover {
-      background-color: green;
     }
     .word-box.match-left {
       background-color: yellow;
@@ -102,63 +80,40 @@
       background-color: green;
       color: white;
     }
-
-    /* Diseño responsivo del grid */
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Adaptado para móviles */
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 20px;
       margin: 0 auto;
-      width: 90%; /* Máximo ancho adaptable */
       max-width: 600px;
     }
-
-    /* Botón Volver */
     .back-button {
       margin-top: 20px;
       padding: 10px 20px;
       background-color: #ccc;
       border: none;
       border-radius: 10px;
-      font-size: 4vw; /* Adaptado para móviles */
+      font-size: 16px;
       cursor: pointer;
     }
     .back-button:hover {
       background-color: #bbb;
     }
-
-    /* Ajustes para móviles con media queries */
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 6vw; /* Tamaño mayor en pantallas pequeñas */
-      }
-      .word-box {
-        font-size: 4vw;
-        padding: 10px;
-      }
-    }
-
-    /* Menús y actividades ocultos por defecto */
     #activity-menu, #word-grid, #match-activity {
       display: none;
       text-align: center;
     }
-
-    /* Pantalla inicial centrada */
     #main-menu {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 20px;
-      width: 100%;
     }
-
-    /* Diseño para la actividad MATCH */
     #match-grid {
       display: flex;
       justify-content: space-between;
-      width: 90%; /* Máximo adaptable */
+      width: 80%;
       max-width: 900px;
       margin: 0 auto;
     }
@@ -175,8 +130,6 @@
     <h1>Vocabulario de los NÚMEROS</h1>
     <div class="button-container">
       <button class="group-button yellow" onclick="openActivityMenu(1)">Números del 1 al 10</button>
-      <button class="group-button green" onclick="openActivityMenu(2)">Decenas (10 al 90)</button>
-      <button class="group-button blue" onclick="openActivityMenu(3)">Centenas (100 al 900)</button>
     </div>
   </div>
 
@@ -188,13 +141,6 @@
       <button class="activity-button match" onclick="startMatch()">Match</button>
     </div>
     <button class="back-button" onclick="goBackToMainMenu()">Volver</button>
-  </div>
-
-  <!-- Pantalla de actividad MEMORY -->
-  <div id="word-grid">
-    <h1>Actividad: MEMORY</h1>
-    <div class="grid-container" id="grid"></div>
-    <button class="back-button" onclick="goBackToActivityMenu()">Volver</button>
   </div>
 
   <!-- Pantalla de actividad MATCH -->
@@ -231,23 +177,57 @@
       document.getElementById("activity-menu").style.display = "block";
     }
 
-    function startMemory() {
+    function startMatch() {
       document.getElementById("activity-menu").style.display = "none";
-      document.getElementById("word-grid").style.display = "block";
+      document.getElementById("match-activity").style.display = "block";
 
-      const grid = document.getElementById("grid");
-      grid.innerHTML = "";
-      groups[currentGroup].forEach((word) => {
+      const groupWords = groups[currentGroup];
+      const englishWords = [...groupWords].sort(() => Math.random() - 0.5);
+      const spanishWords = [...groupWords].sort(() => Math.random() - 0.5);
+
+      const englishColumn = document.getElementById("english-column");
+      const spanishColumn = document.getElementById("spanish-column");
+
+      englishColumn.innerHTML = "";
+      spanishColumn.innerHTML = "";
+
+      englishWords.forEach((word) => {
         const box = document.createElement("div");
-        box.className = "word-box memory";
+        box.className = "word-box match-left";
+        box.textContent = word.english;
+        box.dataset.word = word.english;
+        englishColumn.appendChild(box);
+      });
+
+      spanishWords.forEach((word) => {
+        const box = document.createElement("div");
+        box.className = "word-box match-right";
         box.textContent = word.spanish;
-        box.onmouseover = function () {
-          box.textContent = word.english;
+        box.draggable = true;
+
+        box.ondragstart = (event) => {
+          event.preventDefault(); // Prevenir comportamiento predeterminado
+          event.dataTransfer.setData("text", word.english);
+          box.classList.add("dragged");
         };
-        box.onmouseout = function () {
-          box.textContent = word.spanish;
+
+        box.ondragend = () => {
+          box.classList.remove("dragged");
         };
-        grid.appendChild(box);
+
+        spanishColumn.appendChild(box);
+      });
+
+      englishColumn.childNodes.forEach((targetBox) => {
+        targetBox.ondragover = (event) => event.preventDefault();
+        targetBox.ondrop = (event) => {
+          event.preventDefault(); // Prevenir comportamiento predeterminado
+          const draggedWord = event.dataTransfer.getData("text");
+          if (draggedWord === targetBox.dataset.word) {
+            targetBox.textContent = draggedWord;
+            targetBox.classList.add("correct");
+          }
+        };
       });
     }
 
@@ -257,7 +237,7 @@
     }
 
     function goBackToActivityMenu() {
-      document.getElementById("word-grid").style.display = "none";
+      document.getElementById("match-activity").style.display = "none";
       document.getElementById("activity-menu").style.display = "block";
     }
   </script>
