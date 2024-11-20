@@ -1,57 +1,305 @@
-<!-- Mantiene todo igual excepto la lógica de "Match" -->
-<script>
-  function startMatch() {
-    document.getElementById("activity-menu").style.display = "none";
-    document.getElementById("match-activity").style.display = "block";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vocabulario de los Números</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: #333;
+      text-transform: uppercase;
+    }
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 80%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .group-button, .activity-button {
+      padding: 15px;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .group-button:hover, .activity-button:hover {
+      opacity: 0.9;
+    }
+    .group-button.yellow {
+      background-color: #f1c40f;
+    }
+    .group-button.green {
+      background-color: #2ecc71;
+    }
+    .group-button.blue {
+      background-color: #3498db;
+    }
+    .activity-button.memory {
+      background-color: #8e44ad;
+    }
+    .activity-button.match {
+      background-color: #e67e22;
+    }
+    .word-box {
+      padding: 15px;
+      color: white;
+      text-align: center;
+      border-radius: 5px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      word-wrap: break-word;
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+    }
+    .word-box.memory {
+      background-color: blue;
+    }
+    .word-box.memory:hover {
+      background-color: green;
+    }
+    .word-box.match-left {
+      background-color: yellow;
+      color: black;
+    }
+    .word-box.match-right {
+      background-color: purple;
+    }
+    .word-box.correct {
+      background-color: green;
+      color: white;
+      pointer-events: none; /* Desactivar clic después de emparejar */
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 20px;
+      margin: 0 auto;
+      max-width: 600px;
+    }
+    .back-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #ccc;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .back-button:hover {
+      background-color: #bbb;
+    }
+    #activity-menu, #word-grid, #match-activity {
+      display: none;
+      text-align: center;
+    }
+    #main-menu {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+    #match-grid {
+      display: flex;
+      justify-content: space-between;
+      width: 80%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Pantalla inicial -->
+  <div id="main-menu">
+    <h1>Vocabulario de los NÚMEROS</h1>
+    <div class="button-container">
+      <button class="group-button yellow" onclick="openActivityMenu(1)">Números del 1 al 10</button>
+      <button class="group-button green" onclick="openActivityMenu(2)">Decenas (10 al 90)</button>
+      <button class="group-button blue" onclick="openActivityMenu(3)">Centenas (100 al 900)</button>
+    </div>
+  </div>
 
-    const groupWords = groups[currentGroup];
-    const englishWords = [...groupWords].sort(() => Math.random() - 0.5);
-    const spanishWords = [...groupWords].sort(() => Math.random() - 0.5);
+  <!-- Menú de actividades -->
+  <div id="activity-menu">
+    <h1>Selecciona una Actividad</h1>
+    <div class="button-container">
+      <button class="activity-button memory" onclick="startMemory()">Memory</button>
+      <button class="activity-button match" onclick="startMatch()">Match</button>
+    </div>
+    <button class="back-button" onclick="goBackToMainMenu()">Volver</button>
+  </div>
 
-    const englishColumn = document.getElementById("english-column");
-    const spanishColumn = document.getElementById("spanish-column");
+  <!-- Pantalla de actividad MEMORY -->
+  <div id="word-grid">
+    <h1>Actividad: MEMORY</h1>
+    <div class="grid-container" id="grid"></div>
+    <button class="back-button" onclick="goBackToActivityMenu()">Volver</button>
+  </div>
 
-    englishColumn.innerHTML = "";
-    spanishColumn.innerHTML = "";
+  <!-- Pantalla de actividad MATCH -->
+  <div id="match-activity">
+    <h1>Actividad: MATCH</h1>
+    <div id="match-grid">
+      <div class="column" id="english-column"></div>
+      <div class="column" id="spanish-column"></div>
+    </div>
+    <button class="back-button" onclick="goBackToActivityMenu()">Volver</button>
+  </div>
 
-    englishWords.forEach((word) => {
-      const box = document.createElement("div");
-      box.className = "word-box match-left";
-      box.textContent = word.english;
-      box.dataset.word = word.english;
-      englishColumn.appendChild(box);
-    });
+  <script>
+    let currentGroup = null;
 
-    spanishWords.forEach((word) => {
-      const box = document.createElement("div");
-      box.className = "word-box match-right";
-      box.textContent = word.spanish;
-      box.draggable = true;
+    const groups = {
+      1: [
+        { spanish: "1", english: "One" },
+        { spanish: "2", english: "Two" },
+        { spanish: "3", english: "Three" },
+        { spanish: "4", english: "Four" },
+        { spanish: "5", english: "Five" },
+        { spanish: "6", english: "Six" },
+        { spanish: "7", english: "Seven" },
+        { spanish: "8", english: "Eight" },
+        { spanish: "9", english: "Nine" },
+        { spanish: "10", english: "Ten" },
+      ],
+      2: [
+        { spanish: "10", english: "Ten" },
+        { spanish: "20", english: "Twenty" },
+        { spanish: "30", english: "Thirty" },
+        { spanish: "40", english: "Forty" },
+        { spanish: "50", english: "Fifty" },
+        { spanish: "60", english: "Sixty" },
+        { spanish: "70", english: "Seventy" },
+        { spanish: "80", english: "Eighty" },
+        { spanish: "90", english: "Ninety" },
+      ],
+      3: [
+        { spanish: "100", english: "One hundred" },
+        { spanish: "200", english: "Two hundred" },
+        { spanish: "300", english: "Three hundred" },
+        { spanish: "400", english: "Four hundred" },
+        { spanish: "500", english: "Five hundred" },
+        { spanish: "600", english: "Six hundred" },
+        { spanish: "700", english: "Seven hundred" },
+        { spanish: "800", english: "Eight hundred" },
+        { spanish: "900", english: "Nine hundred" },
+      ],
+    };
 
-      box.ondragstart = (event) => {
-        event.dataTransfer.setData("text", word.english);
-        box.classList.add("dragged");
-      };
+    function openActivityMenu(groupNumber) {
+      currentGroup = groupNumber;
+      document.getElementById("main-menu").style.display = "none";
+      document.getElementById("activity-menu").style.display = "block";
+    }
 
-      box.ondragend = () => {
-        box.classList.remove("dragged");
-      };
+    function startMemory() {
+      document.getElementById("activity-menu").style.display = "none";
+      document.getElementById("word-grid").style.display = "block";
 
-      spanishColumn.appendChild(box);
-    });
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+      groups[currentGroup].forEach((word) => {
+        const box = document.createElement("div");
+        box.className = "word-box memory";
+        box.textContent = word.spanish;
+        box.onmouseover = function () {
+          box.textContent = word.english;
+        };
+        box.onmouseout = function () {
+          box.textContent = word.spanish;
+        };
+        grid.appendChild(box);
+      });
+    }
 
-    englishColumn.childNodes.forEach((targetBox) => {
-      targetBox.ondragover = (event) => event.preventDefault();
-      targetBox.ondrop = (event) => {
-        const draggedWord = event.dataTransfer.getData("text");
-        if (draggedWord === targetBox.dataset.word) {
-          targetBox.textContent = draggedWord;
-          targetBox.classList.add("correct");
-          targetBox.style.pointerEvents = "none"; // Desactiva el cuadro
-        } else {
-          alert("No coincide, inténtalo de nuevo.");
-        }
-      };
-    });
-  }
-</script>
+    function startMatch() {
+      document.getElementById("activity-menu").style.display = "none";
+      document.getElementById("match-activity").style.display = "block";
+
+      const groupWords = groups[currentGroup];
+      const englishWords = [...groupWords].sort(() => Math.random() - 0.5);
+      const spanishWords = [...groupWords].sort(() => Math.random() - 0.5);
+
+      const englishColumn = document.getElementById("english-column");
+      const spanishColumn = document.getElementById("spanish-column");
+
+      englishColumn.innerHTML = "";
+      spanishColumn.innerHTML = "";
+
+      englishWords.forEach((word) => {
+        const box = document.createElement("div");
+        box.className = "word-box match-left";
+        box.textContent = word.english;
+        box.dataset.word = word.english;
+        englishColumn.appendChild(box);
+      });
+
+      spanishWords.forEach((word) => {
+        const box = document.createElement("div");
+        box.className = "word-box match-right";
+        box.textContent = word.spanish;
+        box.draggable = true;
+
+        box.ondragstart = (event) => {
+          event.dataTransfer.setData("text", word.english);
+          box.classList.add("dragged");
+        };
+
+        box.ondragend = () => {
+          box.classList.remove("dragged");
+        };
+
+        spanishColumn.appendChild(box);
+      });
+
+      englishColumn.childNodes.forEach((targetBox) => {
+        targetBox.ondragover = (event) => event.preventDefault();
+        targetBox.ondrop = (event) => {
+          const draggedWord = event.dataTransfer.getData("text");
+          if (draggedWord === targetBox.dataset.word) {
+            targetBox.textContent = draggedWord;
+            targetBox.classList.add("correct");
+            targetBox.style.pointerEvents = "none"; // Desactiva el cuadro
+          } else {
+            alert("No coincide, inténtalo de nuevo.");
+          }
+        };
+      });
+    }
+
+    function goBackToMainMenu() {
+      document.getElementById("activity-menu").style.display = "none";
+      document.getElementById("main-menu").style.display = "flex";
+    }
+
+    function goBackToActivityMenu() {
+      document.getElementById("word-grid").style.display = "none";
+      document.getElementById("match-activity").style.display = "none";
+      document.getElementById("activity-menu").style.display = "block";
+    }
+  </script>
+</body>
+</html>
