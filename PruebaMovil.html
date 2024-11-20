@@ -264,21 +264,18 @@
         box.draggable = true;
 
         box.ondragstart = (event) => {
-          event.dataTransfer.setData("text", word.english);
-          box.classList.add("dragged");
-        };
-
-        box.ondragend = () => {
-          box.classList.remove("dragged");
+          event.dataTransfer.setData("text/plain", word.english);
         };
 
         spanishColumn.appendChild(box);
       });
 
       englishColumn.childNodes.forEach((targetBox) => {
-        targetBox.ondragover = (event) => event.preventDefault();
+        targetBox.ondragover = (event) => {
+          event.preventDefault();
+        };
         targetBox.ondrop = (event) => {
-          const draggedWord = event.dataTransfer.getData("text");
+          const draggedWord = event.dataTransfer.getData("text/plain");
           if (draggedWord === targetBox.dataset.word) {
             targetBox.textContent = draggedWord;
             targetBox.classList.add("correct");
