@@ -37,9 +37,13 @@
       cursor: pointer;
       text-align: center;
       text-transform: uppercase;
+      transition: transform 0.2s ease;
     }
     .group-button:hover, .activity-button:hover {
       opacity: 0.9;
+    }
+    .group-button:active, .activity-button:active {
+      transform: scale(0.95);
     }
     .group-button.yellow {
       background-color: #f1c40f;
@@ -85,7 +89,6 @@
     .word-box.correct {
       background-color: green;
       color: white;
-      pointer-events: none; /* Desactivar clic después de emparejar */
     }
     .grid-container {
       display: grid;
@@ -136,9 +139,9 @@
   <div id="main-menu">
     <h1>Vocabulario de los NÚMEROS</h1>
     <div class="button-container">
-      <button class="group-button yellow" onclick="openActivityMenu(1)">Números del 1 al 10</button>
-      <button class="group-button green" onclick="openActivityMenu(2)">Decenas (10 al 90)</button>
-      <button class="group-button blue" onclick="openActivityMenu(3)">Centenas (100 al 900)</button>
+      <button class="group-button yellow" onclick="openActivityMenu(1)" aria-label="Números del 1 al 10">Números del 1 al 10</button>
+      <button class="group-button green" onclick="openActivityMenu(2)" aria-label="Decenas (10 al 90)">Decenas (10 al 90)</button>
+      <button class="group-button blue" onclick="openActivityMenu(3)" aria-label="Centenas (100 al 900)">Centenas (100 al 900)</button>
     </div>
   </div>
 
@@ -249,6 +252,8 @@
       englishColumn.innerHTML = "";
       spanishColumn.innerHTML = "";
 
+      let correctMatches = 0;
+
       englishWords.forEach((word) => {
         const box = document.createElement("div");
         box.className = "word-box match-left";
@@ -264,24 +269,28 @@
         box.draggable = true;
 
         box.ondragstart = (event) => {
-          event.dataTransfer.setData("text/plain", word.english);
+          event.dataTransfer.setData("text", word.english);
+          box.classList.add("dragged");
+        };
+
+        box.ondragend = () => {
+          box.classList.remove("dragged");
         };
 
         spanishColumn.appendChild(box);
       });
 
       englishColumn.childNodes.forEach((targetBox) => {
-        targetBox.ondragover = (event) => {
-          event.preventDefault();
-        };
+        targetBox.ondragover = (event) => event.preventDefault();
         targetBox.ondrop = (event) => {
-          const draggedWord = event.dataTransfer.getData("text/plain");
+          const draggedWord = event.dataTransfer.getData("text");
           if (draggedWord === targetBox.dataset.word) {
             targetBox.textContent = draggedWord;
             targetBox.classList.add("correct");
-            targetBox.style.pointerEvents = "none"; // Desactiva el cuadro
-          } else {
-            alert("No coincide, inténtalo de nuevo.");
+            correctMatches++;
+            if (correctMatches === groupWords.length) {
+              alert("¡Felicidades! Has emparejado todas las palabras.");
+            }
           }
         };
       });
